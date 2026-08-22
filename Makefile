@@ -2,11 +2,11 @@ CC ?= gcc
 CFLAGS ?= -Wall -Wextra
 INCLUDES := -Iinclude
 
-pdlcheck:
+build:
 	@echo "Compiling PDL-Check"
 	$(CC) $(CFLAGS) $(INCLUDES) src/main.c -o pdlcheck
 
-run: pdlcheck
+run:
 	@echo "Running PDL-Check"
 	./pdlcheck
 
