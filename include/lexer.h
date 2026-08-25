@@ -24,6 +24,18 @@ typedef enum {
 
     // Assignment
     TOKEN_ASSIGN,
+
+    // Punctuation
+    TOKEN_SEMICOLON,
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
+    TOKEN_LBRACE,
+    TOKEN_RBRACE,
+
+    // Keywords
+    TOKEN_IF,
+    TOKEN_ELSE,
+    TOKEN_WHILE,
 } TokenType;
 
 #endif
