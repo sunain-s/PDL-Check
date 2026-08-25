@@ -88,6 +88,19 @@ static Token lex_identifier(Lexer *lexer) {
     return token;
 }
 
+static Token lex_integer(Lexer *lexer) {
+    const char *start = &lexer->source[lexer->position];
+    int line = lexer->line;
+    int column = lexer->column;
+
+    while (isdigit((unsigned char)lexer_current(lexer))) {
+        lexer_advance(lexer);
+    }
+
+    size_t length = &lexer->source[lexer->position] - start;
+    return make_token(TOKEN_INTEGER, start, length, line, column);
+}
+
 //-------------------------------------------------------------------------------------------------
 // Public functions
 
@@ -106,4 +119,53 @@ Lexer *lexer_create(const char *source) {
 
 void lexer_destroy(Lexer *lexer) {
     free(lexer);
+}
+
+Token lexer_next_token(Lexer *lexer) {
+    skip_whitespace(lexer);
+    const char *start = &lexer->source[lexer->position];
+    int line = lexer->line;
+    int column = lexer->column;
+
+    char c = lexer_current(lexer);
+    if (c == '\0') {
+        return make_token(TOKEN_EOF, start, 0, line, column);
+    }
+    if (isalpha((unsigned char)c) || c == '_') {
+        return lex_identifier(lexer);
+    }
+    if (isdigit((unsigned char)c)) {
+        return lex_integer(lexer);
+    }
+
+    // One character tokens
+    switch (c) {
+        case '+':
+            lexer_advance(lexer);
+            return make_token(TOKEN_PLUS, start, 1, line, column);
+        case '-':
+            lexer_advance(lexer);
+            return make_token(TOKEN_MINUS, start, 1, line, column);
+        case '*':
+            lexer_advance(lexer);
+            return make_token(TOKEN_STAR, start, 1, line, column);
+        case '/':
+            lexer_advance(lexer);
+            return make_token(TOKEN_FSLASH, start, 1, line, column);
+        case ';':
+            lexer_advance(lexer);
+            return make_token(TOKEN_SEMICOLON, start, 1, line, column);
+        case '(':
+            lexer_advance(lexer);
+            return make_token(TOKEN_LPAREN, start, 1, line, column);
+        case ')':
+            lexer_advance(lexer);
+            return make_token(TOKEN_RPAREN, start, 1, line, column);
+        case '{':
+            lexer_advance(lexer);
+            return make_token(TOKEN_LBRACE, start, 1, line, column);
+        case '}':
+            lexer_advance(lexer);
+            return make_token(TOKEN_RBRACE, start, 1, line, column);
+    }
 }
