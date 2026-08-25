@@ -38,4 +38,11 @@ typedef enum {
     TOKEN_WHILE,
 } TokenType;
 
+typedef struct {
+    TokenType type;
+    char *lexeme;
+    int line;
+    int column;
+} Token;
+
 #endif
