@@ -42,7 +42,7 @@ static const char *token_type_name(TokenType type)
 int main(void)
 {
     const char *source =
-        "if (x < 10) {\n"
+        "if (x == 10) {\n"
         "    y = x + 1;\n"
         "} else {\n"
         "    y = 0;\n"
