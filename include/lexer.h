@@ -45,4 +45,12 @@ typedef struct {
     int column;
 } Token;
 
+typedef struct Lexer Lexer;
+
+Lexer *lexer_create(const char *source);
+
+void lexer_destroy(Lexer *lexer);
+
+Token lexer_next_token(Lexer *lexer);
+
 #endif
