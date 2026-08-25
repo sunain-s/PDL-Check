@@ -26,5 +26,23 @@ static void lexer_advance(Lexer *lexer) {
     } else {
         lexer->column++;
     }
+
     lexer->position++;
+}
+
+Lexer *lexer_create(const char *source) {
+    Lexer *lexer = malloc(sizeof(Lexer));
+    if (lexer == NULL) {
+        return NULL;
+    }
+
+    lexer->source = source;
+    lexer->position = 0;
+    lexer->line = 1;
+    lexer->column = 1;
+    return lexer;
+}
+
+void lexer_destroy(Lexer *lexer) {
+    free(lexer);
 }
