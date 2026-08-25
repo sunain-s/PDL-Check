@@ -168,4 +168,50 @@ Token lexer_next_token(Lexer *lexer) {
             lexer_advance(lexer);
             return make_token(TOKEN_RBRACE, start, 1, line, column);
     }
+
+    // 2 character tokens
+    if (c == '=') {
+        if (lexer_peek_next(lexer) == '=') {
+            lexer_advance(lexer);
+            lexer_advance(lexer);
+            return make_token(TOKEN_EQ, start, 2, line, column);
+        }
+        
+        lexer_advance(lexer);
+        return make_token(TOKEN_ASSIGN, start, 1, line, column);
+    }
+
+    if (c == '!') {
+        if (lexer_peek_next(lexer) == '=') {
+            lexer_advance(lexer);
+            lexer_advance(lexer);
+            return make_token(TOKEN_NEQ, start, 2, line, column);
+        }
+    }
+
+    if (c == '<') {
+        if (lexer_peek_next(lexer) == '=') {
+            lexer_advance(lexer);
+            lexer_advance(lexer);
+            return make_token(TOKEN_LTE, start, 2, line, column);
+        }
+        
+        lexer_advance(lexer);
+        return make_token(TOKEN_LT, start, 1, line, column);
+    }
+
+    if (c == '>') {
+        if (lexer_peek_next(lexer) == '=') {
+            lexer_advance(lexer);
+            lexer_advance(lexer);
+            return make_token(TOKEN_GTE, start, 2, line, column);
+        }
+        
+        lexer_advance(lexer);
+        return make_token(TOKEN_GT, start, 1, line, column);
+    }
+
+    // Unknown character
+    lexer_advance(lexer);
+    return make_token(TOKEN_EOF, start, 0, line, column);
 }
