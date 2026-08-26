@@ -25,17 +25,13 @@ OBJS := $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 # Convert src/*.c -> bin/build/dep/*.d
 DEPS := $(SRCS:$(SRCDIR)/%.c=$(DEPDIR)/%.d)
 
-
 .PHONY: all build run clean distclean rebuild
-
 
 # Default target
 all: $(TARGET)
 
-
 # Explicit build target
 build: $(TARGET)
-
 
 # Link
 $(TARGET): $(OBJS)
@@ -43,7 +39,6 @@ $(TARGET): $(OBJS)
 	@echo "Linking PDL-Check"
 	@$(CC) $(OBJS) -o $@
 	@echo "Build complete: $(TARGET)"
-
 
 # Compile source files
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
@@ -54,28 +49,23 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 		-MF $(DEPDIR)/$*.d \
 		-c $< -o $@
 
-
 # Include generated dependency files
 -include $(DEPS)
-
 
 # Run
 run: $(TARGET)
 	@echo "Running PDL-Check"
 	@./$(TARGET)
 
-
 # Remove intermediate build files
 clean:
 	@echo "Cleaning intermediate build artifacts"
 	@rm -rf $(BUILDDIR)
 
-
 # Remove everything built
 distclean:
 	@echo "Cleaning all build artifacts"
 	@rm -rf $(BINDIR)
-
 
 # Full rebuild
 rebuild: distclean build
