@@ -56,7 +56,7 @@ static Token next_token(Lexer *lexer) {
 //-------------------------------------------------------------------------------------------------
 // Tests
 
-static void test_identifiers(void) {
+static void test_identifiers() {
     Lexer *lexer = lexer_create("foo bar _temp hello_world x123");
     ASSERT_TRUE(lexer != NULL);
 
@@ -70,10 +70,53 @@ static void test_identifiers(void) {
     lexer_destroy(lexer);
 }
 
+static void test_integers() {
+    Lexer *lexer = lexer_create("123 456 7890 0 -12");
+    ASSERT_TRUE(lexer != NULL);
+
+    assert_token(next_token(lexer), TOKEN_INTEGER, "123", 1, 1);
+    assert_token(next_token(lexer), TOKEN_INTEGER, "456", 1, 5);
+    assert_token(next_token(lexer), TOKEN_INTEGER, "7890", 1, 9);
+    assert_token(next_token(lexer), TOKEN_INTEGER, "0", 1, 14);
+    assert_token(next_token(lexer), TOKEN_MINUS, "-", 1, 16);
+    assert_token(next_token(lexer), TOKEN_INTEGER, "12", 1, 17);
+    assert_token(next_token(lexer), TOKEN_EOF, "", 1, 19);
+
+    lexer_destroy(lexer);
+}
+
+static void test_arithmetic_operators() {
+    Lexer *lexer = lexer_create("+ - * /");
+    ASSERT_TRUE(lexer != NULL);
+
+    assert_token(next_token(lexer), TOKEN_PLUS, "+", 1, 1);
+    assert_token(next_token(lexer), TOKEN_MINUS, "-", 1, 3);
+    assert_token(next_token(lexer), TOKEN_STAR, "*", 1, 5);
+    assert_token(next_token(lexer), TOKEN_FSLASH, "/", 1, 7);
+    assert_token(next_token(lexer), TOKEN_EOF, "", 1, 8);
+
+    lexer_destroy(lexer);
+}
+
+static void test_comparison_operators() {
+    Lexer *lexer = lexer_create("== != < > <= >=");
+    ASSERT_TRUE(lexer != NULL);
+
+    assert_token(next_token(lexer), TOKEN_EQ, "==", 1, 1);
+    assert_token(next_token(lexer), TOKEN_NEQ, "!=", 1, 4);
+    assert_token(next_token(lexer), TOKEN_LT, "<", 1, 7);
+    assert_token(next_token(lexer), TOKEN_GT, ">", 1, 9);
+    assert_token(next_token(lexer), TOKEN_LTE, "<=", 1, 11);
+    assert_token(next_token(lexer), TOKEN_GTE, ">=", 1, 14);
+    assert_token(next_token(lexer), TOKEN_EOF, "", 1, 16);
+
+    lexer_destroy(lexer);
+}
+
 //-------------------------------------------------------------------------------------------------
 // Test runner
 
-typedef void (*TestFunction)(void);
+typedef void (*TestFunction)();
 
 typedef struct {
     const char *name;
@@ -81,10 +124,13 @@ typedef struct {
 } Test;
 
 static Test tests[] = {
-    {"identifiers", test_identifiers}
+    {"identifiers", test_identifiers},
+    {"integers", test_integers},
+    {"arithmetic operators", test_arithmetic_operators},
+    {"comparison operators", test_comparison_operators}
 };
 
-int main(void) {
+int main() {
     size_t test_count = sizeof(tests) / sizeof(tests[0]);
     for (size_t i = 0; i < test_count; i++) {
         int failures_before = tests_failed;

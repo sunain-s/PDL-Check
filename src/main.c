@@ -39,8 +39,7 @@ static const char *token_type_name(TokenType type)
     return "UNKNOWN";
 }
 
-int main(void)
-{
+int main() {
     const char *source =
         "if (x == 10) {\n"
         "    y = x + 1;\n"
@@ -74,6 +73,5 @@ int main(void)
     }
 
     lexer_destroy(lexer);
-
     return EXIT_SUCCESS;
 }
