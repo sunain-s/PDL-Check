@@ -2,7 +2,7 @@
 
 # Compiler and flags
 CC ?= gcc
-CFLAGS ?= -std=c99 -Wall -Wextra -O2
+CFLAGS ?= -std=c11 -Wall -Wextra -O2
 INCLUDES := -Iinclude
 
 # Paths and targets
@@ -13,6 +13,9 @@ OBJDIR := $(BUILDDIR)/obj
 DEPDIR := $(BUILDDIR)/dep
 
 TARGET := $(BINDIR)/pdlcheck
+TESTDIR := $(BINDIR)/tests
+TEST_SRCS := $(wildcard tests/*_test.c)
+TEST_TARGETS := $(TEST_SRCS:tests/%.c=$(TESTDIR)/%)
 
 # Source files
 SRCS := \
@@ -25,7 +28,7 @@ OBJS := $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 # Convert src/*.c -> bin/build/dep/*.d
 DEPS := $(SRCS:$(SRCDIR)/%.c=$(DEPDIR)/%.d)
 
-.PHONY: all build run clean distclean rebuild
+.PHONY: all build run test clean distclean rebuild
 
 # Default target
 all: $(TARGET)
@@ -56,6 +59,19 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 run: $(TARGET)
 	@echo "Running PDL-Check"
 	@./$(TARGET)
+
+# Build and run test programs
+test: $(TEST_TARGETS)
+	@for test in $(TEST_TARGETS); do \
+		echo "Running $$test"; \
+		./$$test || exit 1; \
+	done
+
+# Link test programs with the lexer, without the application's main function
+$(TESTDIR)/%: tests/%.c $(OBJDIR)/lexer.o
+	@mkdir -p $(TESTDIR)
+	@echo "Building test $@"
+	@$(CC) $(CFLAGS) $(INCLUDES) $< $(OBJDIR)/lexer.o -o $@
 
 # Remove intermediate build files
 clean:

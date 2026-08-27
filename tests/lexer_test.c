@@ -113,6 +113,43 @@ static void test_comparison_operators() {
     lexer_destroy(lexer);
 }
 
+static void test_assignment() {
+    Lexer *lexer = lexer_create("= ==");
+    ASSERT_TRUE(lexer != NULL);
+
+    assert_token(next_token(lexer), TOKEN_ASSIGN, "=", 1, 1);
+    assert_token(next_token(lexer), TOKEN_EQ, "==", 1, 3);
+    assert_token(next_token(lexer), TOKEN_EOF, "", 1, 5);
+
+    lexer_destroy(lexer);
+}
+
+static void test_punctuation() {
+    Lexer *lexer = lexer_create("; ( ) { }");
+    ASSERT_TRUE(lexer != NULL);
+
+    assert_token(next_token(lexer), TOKEN_SEMICOLON, ";", 1, 1);
+    assert_token(next_token(lexer), TOKEN_LPAREN, "(", 1, 3);
+    assert_token(next_token(lexer), TOKEN_RPAREN, ")", 1, 5);
+    assert_token(next_token(lexer), TOKEN_LBRACE, "{", 1, 7);
+    assert_token(next_token(lexer), TOKEN_RBRACE, "}", 1, 9);
+    assert_token(next_token(lexer), TOKEN_EOF, "", 1, 10);
+
+    lexer_destroy(lexer);
+}
+
+static void test_whitespace() {
+    Lexer *lexer = lexer_create("  \t\n  x\r\n\n foo 123");
+    ASSERT_TRUE(lexer != NULL);
+
+    assert_token(next_token(lexer), TOKEN_IDENTIFIER, "x", 2, 3);
+    assert_token(next_token(lexer), TOKEN_IDENTIFIER, "foo", 4, 2);
+    assert_token(next_token(lexer), TOKEN_INTEGER, "123", 4, 6);
+    assert_token(next_token(lexer), TOKEN_EOF, "", 4, 9);
+
+    lexer_destroy(lexer);
+}
+
 //-------------------------------------------------------------------------------------------------
 // Test runner
 
@@ -127,7 +164,10 @@ static Test tests[] = {
     {"identifiers", test_identifiers},
     {"integers", test_integers},
     {"arithmetic operators", test_arithmetic_operators},
-    {"comparison operators", test_comparison_operators}
+    {"comparison operators", test_comparison_operators},
+    {"assignment", test_assignment},
+    {"punctuation", test_punctuation},
+    {"whitespace", test_whitespace}
 };
 
 int main() {
