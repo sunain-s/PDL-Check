@@ -138,6 +138,18 @@ static void test_punctuation() {
     lexer_destroy(lexer);
 }
 
+static void test_keywords() {
+    Lexer *lexer = lexer_create("if else while");
+    ASSERT_TRUE(lexer != NULL);
+
+    assert_token(next_token(lexer), TOKEN_IF, "if", 1, 1);
+    assert_token(next_token(lexer), TOKEN_ELSE, "else", 1, 4);
+    assert_token(next_token(lexer), TOKEN_WHILE, "while", 1, 9);
+    assert_token(next_token(lexer), TOKEN_EOF, "", 1, 14);
+
+    lexer_destroy(lexer);
+}
+
 static void test_whitespace() {
     Lexer *lexer = lexer_create("  \t\n  x\r\n\n foo 123");
     ASSERT_TRUE(lexer != NULL);
@@ -146,6 +158,81 @@ static void test_whitespace() {
     assert_token(next_token(lexer), TOKEN_IDENTIFIER, "foo", 4, 2);
     assert_token(next_token(lexer), TOKEN_INTEGER, "123", 4, 6);
     assert_token(next_token(lexer), TOKEN_EOF, "", 4, 9);
+
+    lexer_destroy(lexer);
+}
+
+static void line_and_column_tracking() {
+    Lexer *lexer = lexer_create(
+        "x = 10;\n"
+        "y = x + 1;\n"
+        "while (y > 0) {}"
+    );
+    ASSERT_TRUE(lexer != NULL);
+
+    assert_token(next_token(lexer), TOKEN_IDENTIFIER, "x", 1, 1);
+    assert_token(next_token(lexer), TOKEN_ASSIGN, "=", 1, 3);
+    assert_token(next_token(lexer), TOKEN_INTEGER, "10", 1, 5);
+    assert_token(next_token(lexer), TOKEN_SEMICOLON, ";", 1, 7);
+    assert_token(next_token(lexer), TOKEN_IDENTIFIER, "y", 2, 1);
+    assert_token(next_token(lexer), TOKEN_ASSIGN, "=", 2, 3);
+    assert_token(next_token(lexer), TOKEN_IDENTIFIER, "x", 2, 5);
+    assert_token(next_token(lexer), TOKEN_PLUS, "+", 2, 7);
+    assert_token(next_token(lexer), TOKEN_INTEGER, "1", 2, 9);
+    assert_token(next_token(lexer), TOKEN_SEMICOLON, ";", 2, 10);
+    assert_token(next_token(lexer), TOKEN_WHILE, "while", 3, 1);
+    assert_token(next_token(lexer), TOKEN_LPAREN, "(", 3, 7);
+    assert_token(next_token(lexer), TOKEN_IDENTIFIER, "y", 3, 8);
+    assert_token(next_token(lexer), TOKEN_GT, ">", 3, 10);
+    assert_token(next_token(lexer), TOKEN_INTEGER, "0", 3, 12);
+    assert_token(next_token(lexer), TOKEN_RPAREN, ")", 3, 13);
+    assert_token(next_token(lexer), TOKEN_LBRACE, "{", 3, 15);
+    assert_token(next_token(lexer), TOKEN_RBRACE, "}", 3, 16);
+    assert_token(next_token(lexer), TOKEN_EOF, "", 3, 17);
+
+    lexer_destroy(lexer);
+}
+
+static void test_complete_program() {
+    const char *source = 
+        "if (x == 10) {\n"
+        "    y = x + 1;\n"
+        "} else {\n"
+        "    y = 0;\n"
+        "}";
+
+    Lexer *lexer = lexer_create(source);
+    ASSERT_TRUE(lexer != NULL);
+
+    assert_token(next_token(lexer), TOKEN_IF, "if", 1, 1);
+    assert_token(next_token(lexer), TOKEN_LPAREN, "(", 1, 4);
+    assert_token(next_token(lexer), TOKEN_IDENTIFIER, "x", 1, 5);
+    assert_token(next_token(lexer), TOKEN_EQ, "==", 1, 7);
+    assert_token(next_token(lexer), TOKEN_INTEGER, "10", 1, 10);
+    assert_token(next_token(lexer), TOKEN_RPAREN, ")", 1, 12);
+    assert_token(next_token(lexer), TOKEN_LBRACE, "{", 1, 14);
+    assert_token(next_token(lexer), TOKEN_IDENTIFIER, "y", 2, 5);
+    assert_token(next_token(lexer), TOKEN_ASSIGN, "=", 2, 7);
+    assert_token(next_token(lexer), TOKEN_IDENTIFIER, "x", 2, 9);
+    assert_token(next_token(lexer), TOKEN_PLUS, "+", 2, 11);
+    assert_token(next_token(lexer), TOKEN_INTEGER, "1", 2, 13);
+    assert_token(next_token(lexer), TOKEN_SEMICOLON, ";", 2, 14);
+    assert_token(next_token(lexer), TOKEN_RBRACE, "}", 3, 1);
+    assert_token(next_token(lexer), TOKEN_ELSE, "else", 3, 3);
+    assert_token(next_token(lexer), TOKEN_LBRACE, "{", 3, 8);
+    assert_token(next_token(lexer), TOKEN_IDENTIFIER, "y", 4, 5);
+    assert_token(next_token(lexer), TOKEN_ASSIGN, "=", 4, 7);
+    assert_token(next_token(lexer), TOKEN_INTEGER, "0", 4, 9);
+    assert_token(next_token(lexer), TOKEN_SEMICOLON, ";", 4, 10);
+    assert_token(next_token(lexer), TOKEN_RBRACE, "}", 5, 1);
+    assert_token(next_token(lexer), TOKEN_EOF, "", 5, 2);
+}
+
+static void test_empty_input() {
+    Lexer *lexer = lexer_create("");
+    ASSERT_TRUE(lexer != NULL);
+
+    assert_token(next_token(lexer), TOKEN_EOF, "", 1, 1);
 
     lexer_destroy(lexer);
 }
@@ -167,7 +254,11 @@ static Test tests[] = {
     {"comparison operators", test_comparison_operators},
     {"assignment", test_assignment},
     {"punctuation", test_punctuation},
-    {"whitespace", test_whitespace}
+    {"keywords", test_keywords},
+    {"whitespace", test_whitespace},
+    {"line and column tracking", line_and_column_tracking},
+    {"complete program", test_complete_program},
+    {"empty input", test_empty_input}
 };
 
 int main() {
