@@ -34,3 +34,23 @@ Expression *ast_create_integer(int value) {
     expr->integer_val = value;
     return expr;
 }
+
+Expression *ast_create_identifier(const char *name) {
+    if (name == NULL) {
+        return NULL;
+    }
+
+    Expression *expr = malloc(sizeof(Expression));
+    if (expr == NULL) {
+        return NULL;
+    }
+
+    expr->identifier = ast_strdup(name);
+    if (expr->identifier == NULL) {
+        free(expr);
+        return NULL;
+    }
+
+    expr->type = EXPR_IDENTIFIER;
+    return expr;
+}
