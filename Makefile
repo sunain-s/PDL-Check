@@ -20,7 +20,8 @@ TEST_TARGETS := $(TEST_SRCS:tests/%.c=$(TESTDIR)/%)
 # Source files
 SRCS := \
 	$(SRCDIR)/main.c \
-	$(SRCDIR)/lexer.c
+	$(SRCDIR)/lexer.c \
+	$(SRCDIR)/ast.c
 
 # Convert src/*.c -> bin/build/obj/*.o
 OBJS := $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)

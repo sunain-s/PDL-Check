@@ -54,3 +54,16 @@ Expression *ast_create_identifier(const char *name) {
     expr->type = EXPR_IDENTIFIER;
     return expr;
 }
+
+Expression *ast_create_binary(TokenType op, Expression *left, Expression *right) {
+    Expression *expr = malloc(sizeof(Expression));
+    if (expr == NULL) {
+        return NULL;
+    }
+
+    expr->type = EXPR_BINARY;
+    expr->Binary.op = op;
+    expr->Binary.left = left;
+    expr->Binary.right = right;
+    return expr;
+}

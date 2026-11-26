@@ -10,7 +10,6 @@ typedef enum{
 } ExpressionType;
 
 typedef struct Expression Expression;
-
 struct Expression {
     ExpressionType type;
     
@@ -22,8 +21,14 @@ struct Expression {
             TokenType op;
             Expression *left;
             Expression *right;
-        } BinaryOp;
+        } Binary;
     };
 };
+
+Expression *ast_create_integer(int value);
+
+Expression *ast_create_identifier(const char *name);
+
+Expression *ast_create_binary(TokenType operator, Expression *left, Expression *right);
 
 #endif
