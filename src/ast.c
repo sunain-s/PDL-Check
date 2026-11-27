@@ -67,3 +67,25 @@ Expression *ast_create_binary(TokenType op, Expression *left, Expression *right)
     expr->Binary.right = right;
     return expr;
 }
+
+void ast_destroy(Expression *expr) {
+    if (expr == NULL) {
+        return NULL;
+    }
+
+    switch (expr->type) {
+        case EXPR_INTEGER:
+            break;
+
+        case EXPR_IDENTIFIER:
+            free(expr->identifier);
+            break;
+        
+        case EXPR_BINARY:
+            ast_destroy(expr->Binary.left);
+            ast_destroy(expr->Binary.right);
+            break;
+    }
+
+    free(expr);
+}
