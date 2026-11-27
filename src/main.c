@@ -1,77 +1,52 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "lexer.h"
+#include "ast.h"
 
-static const char *token_type_name(TokenType type)
-{
-    switch (type) {
-        case TOKEN_EOF:        return "EOF";
-
-        case TOKEN_IDENTIFIER: return "IDENTIFIER";
-        case TOKEN_INTEGER:    return "INTEGER";
-
-        case TOKEN_PLUS:       return "PLUS";
-        case TOKEN_MINUS:      return "MINUS";
-        case TOKEN_STAR:       return "STAR";
-        case TOKEN_FSLASH:     return "FSLASH";
-
-        case TOKEN_EQ:         return "EQ";
-        case TOKEN_NEQ:        return "NEQ";
-        case TOKEN_LT:         return "LT";
-        case TOKEN_GT:         return "GT";
-        case TOKEN_LTE:        return "LTE";
-        case TOKEN_GTE:        return "GTE";
-
-        case TOKEN_ASSIGN:     return "ASSIGN";
-
-        case TOKEN_SEMICOLON:  return "SEMICOLON";
-        case TOKEN_LPAREN:     return "LPAREN";
-        case TOKEN_RPAREN:     return "RPAREN";
-        case TOKEN_LBRACE:     return "LBRACE";
-        case TOKEN_RBRACE:     return "RBRACE";
-
-        case TOKEN_IF:         return "IF";
-        case TOKEN_ELSE:       return "ELSE";
-        case TOKEN_WHILE:      return "WHILE";
-    }
-
-    return "UNKNOWN";
-}
 
 int main() {
-    const char *source =
-        "if (x == 10) {\n"
-        "    y = x + 1;\n"
-        "} else {\n"
-        "    y = 0;\n"
-        "}";
+    // Test 1: Integer
+    Expression *integer = ast_create_integer(42);
 
-    Lexer *lexer = lexer_create(source);
+    printf("=== Test 1: Integer ===\n");
+    ast_print(integer);
+    ast_destroy(integer);
 
-    if (lexer == NULL) {
-        fprintf(stderr, "Failed to create lexer\n");
-        return EXIT_FAILURE;
-    }
 
-    while (1) {
-        Token token = lexer_next_token(lexer);
+    // Test 2: Identifier
+    Expression *identifier = ast_create_identifier("my_variable");
 
-        printf(
-            "%-12s lexeme=\"%s\" line=%d column=%d\n",
-            token_type_name(token.type),
-            token.lexeme,
-            token.line,
-            token.column
-        );
+    printf("\n=== Test 2: Identifier ===\n");
+    ast_print(identifier);
+    ast_destroy(identifier);
 
-        free(token.lexeme);
 
-        if (token.type == TOKEN_EOF) {
-            break;
-        }
-    }
+    // Test 3: Binary expression (10 + 20)
+    Expression *binary = ast_create_binary(
+        TOKEN_PLUS,
+        ast_create_integer(10),
+        ast_create_integer(20)
+    );
 
-    lexer_destroy(lexer);
-    return EXIT_SUCCESS;
+    printf("\n=== Test 3: Binary ===\n");
+    ast_print(binary);
+    ast_destroy(binary);
+
+
+    // Test 4: Nested binary expression ((10 + 20) * 5)
+    Expression *nested = ast_create_binary(
+        TOKEN_STAR,
+        ast_create_binary(
+            TOKEN_PLUS,
+            ast_create_integer(10),
+            ast_create_integer(20)
+        ),
+        ast_create_integer(5)
+    );
+
+    printf("\n=== Test 4: Nested Binary ===\n");
+    ast_print(nested);
+    ast_destroy(nested);
+
+    return 0;
 }

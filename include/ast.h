@@ -31,4 +31,8 @@ Expression *ast_create_identifier(const char *name);
 
 Expression *ast_create_binary(TokenType operator, Expression *left, Expression *right);
 
+void ast_destroy(Expression *expr);
+
+void ast_print(const Expression *expr);
+
 #endif

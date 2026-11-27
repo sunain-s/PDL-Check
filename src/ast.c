@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "ast.h"
 
@@ -70,7 +71,7 @@ Expression *ast_create_binary(TokenType op, Expression *left, Expression *right)
 
 void ast_destroy(Expression *expr) {
     if (expr == NULL) {
-        return NULL;
+        return;
     }
 
     switch (expr->type) {
@@ -88,4 +89,46 @@ void ast_destroy(Expression *expr) {
     }
 
     free(expr);
+}
+
+void ast_print(const Expression *expr) {
+    if (expr == NULL) {
+        printf("NULL");
+        return;
+    }
+
+    switch (expr->type) {
+        case EXPR_INTEGER:
+            printf("%d", expr->integer_val);
+            break;
+
+        case EXPR_IDENTIFIER:
+            printf("%s", expr->identifier);
+            break;
+
+        case EXPR_BINARY:
+            printf("(");
+            ast_print(expr->Binary.left);
+
+            switch (expr->Binary.op) {
+                case TOKEN_PLUS:  printf(" + "); break;
+                case TOKEN_MINUS: printf(" - "); break;
+                case TOKEN_STAR:  printf(" * "); break;
+                case TOKEN_FSLASH: printf(" / "); break;
+                case TOKEN_EQ:    printf(" == "); break;
+                case TOKEN_NEQ:   printf(" != "); break;
+                case TOKEN_LT:    printf(" < "); break;
+                case TOKEN_GT:    printf(" > "); break;
+                case TOKEN_LTE:   printf(" <= "); break;
+                case TOKEN_GTE:   printf(" >= "); break;
+
+                default:
+                    printf("UNKNOWN OPERATOR");
+                    break;
+            }
+        
+            ast_print(expr->Binary.right);
+            printf(")");
+            break;
+    }
 }
