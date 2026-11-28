@@ -137,3 +137,54 @@ void ast_destroy(Expression *expr) {
 void ast_print(const Expression *expr) {
     ast_print_recursive(expr, 0);
 }
+
+
+Statement *ast_create_assignment(Expression *target, Expression *value) {
+    Statement *stmt = malloc(sizeof(Statement));
+    if (stmt == NULL) {
+        return NULL;
+    }
+
+    stmt->type = STMT_ASSIGN;
+    stmt->Assign.target = target;
+    stmt->Assign.value = value;
+    return stmt;
+}
+
+Statement *ast_create_if(Expression *condition, Statement *then_branch, Statement *else_branch) {
+    Statement *stmt = malloc(sizeof(Statement));
+    if (stmt == NULL) {
+        return NULL;
+    }
+    
+    stmt->type = STMT_IF;
+    stmt->If.condition = condition;
+    stmt->If.then_branch = then_branch;
+    stmt->If.else_branch = else_branch;
+    return stmt;
+}
+
+Statement *ast_create_while(Expression *condition, Statement *body) {
+    Statement *stmt = mallo(sizeof(Statement));
+    if (stmt == NULL) {
+        return NULL;
+    }
+
+    stmt->type = STMT_WHILE;
+    stmt->While.condition = condition;
+    stmt->While.body = body;
+    return stmt;
+}
+
+Statement *ast_create_sequence() {
+    Statement *stmt = malloc(sizeof(Statement));
+    if (stmt == NULL) {
+        return NULL;
+    }
+
+    stmt->type = STMT_SEQUENCE;
+    stmt->Sequence.statements = NULL;
+    stmt->Sequence.count = 0;
+    stmt->Sequence.capacity = 0;
+    return stmt;
+}
