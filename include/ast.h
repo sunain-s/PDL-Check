@@ -87,4 +87,6 @@ Statement *ast_create_while(Expression *condition, Statement *body);
 
 Statement *ast_create_sequence(void);
 
+int ast_sequence_append(Statement *sequence, Statement *stmt);
+
 #endif

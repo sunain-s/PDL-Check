@@ -165,7 +165,7 @@ Statement *ast_create_if(Expression *condition, Statement *then_branch, Statemen
 }
 
 Statement *ast_create_while(Expression *condition, Statement *body) {
-    Statement *stmt = mallo(sizeof(Statement));
+    Statement *stmt = malloc(sizeof(Statement));
     if (stmt == NULL) {
         return NULL;
     }
@@ -187,4 +187,27 @@ Statement *ast_create_sequence() {
     stmt->Sequence.count = 0;
     stmt->Sequence.capacity = 0;
     return stmt;
+}
+
+int ast_sequence_append(Statement *sequence, Statement *stmt) {
+    if (sequence == NULL || stmt == NULL || sequence->type != STMT_SEQUENCE) {
+        return -1;
+    }
+
+    if (sequence->Sequence.count == sequence->Sequence.capacity) {
+        size_t new_capacity = sequence->Sequence.capacity == 0
+            ? 4
+            : sequence->Sequence.capacity * 2;
+
+        Statement **new_statements = realloc(sequence->Sequence.statements, new_capacity * sizeof(Statement *));
+        if (new_statements == NULL) {
+            return -1;
+        }
+
+        sequence->Sequence.statements = new_statements;
+        sequence->Sequence.capacity = new_capacity;
+    }
+
+    sequence->Sequence.statements[sequence->Sequence.count++] = stmt;
+    return 0;
 }
