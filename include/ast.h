@@ -37,7 +37,7 @@ Expression *ast_create_binary(TokenType operator, Expression *left, Expression *
 
 void ast_destroy_expr(Expression *expr);
 
-void ast_print_expr(const Expression *expr);
+void ast_print_expression(const Expression *expr);
 
 //-------------------------------------------------------------------------------------------------
 // Statements
@@ -90,5 +90,7 @@ Statement *ast_create_sequence(void);
 int ast_sequence_append(Statement *sequence, Statement *stmt);
 
 void ast_destroy_stmt(Statement *stmt);
+
+void ast_print_statement(const Statement *stmt);
 
 #endif

@@ -3,50 +3,39 @@
 
 #include "ast.h"
 
+int main(void) {
+    Statement *program = ast_create_sequence();
 
-int main() {
-    // Test 1: Integer
-    Expression *integer = ast_create_integer(42);
+    // x = 10;
+    Statement *assign = ast_create_assignment(ast_create_identifier("x"), ast_create_integer(10));
+    ast_sequence_append(program, assign);
 
-    printf("=== Test 1: Integer ===\n");
-    ast_print(integer);
-    ast_destroy(integer);
-
-
-    // Test 2: Identifier
-    Expression *identifier = ast_create_identifier("my_variable");
-
-    printf("\n=== Test 2: Identifier ===\n");
-    ast_print(identifier);
-    ast_destroy(identifier);
-
-
-    // Test 3: Binary expression (10 + 20)
-    Expression *binary = ast_create_binary(
-        TOKEN_PLUS,
-        ast_create_integer(10),
-        ast_create_integer(20)
+    // while (x < 20) { x = x + 1; }
+    Statement *body = ast_create_sequence();
+    Statement *increment = ast_create_assignment(
+        ast_create_identifier("x"),
+        ast_create_binary(TOKEN_PLUS, ast_create_identifier("x"), ast_create_integer(1))
     );
 
-    printf("\n=== Test 3: Binary ===\n");
-    ast_print(binary);
-    ast_destroy(binary);
+    ast_sequence_append(body, increment);
+    Statement *loop = ast_create_while(ast_create_binary(TOKEN_LT, ast_create_identifier("x"), ast_create_integer(20)), body);
+    ast_sequence_append(program, loop);
 
+    // if (x == 20) { x = 0; } else { x = 10; }
+    Statement *then_branch = ast_create_sequence();
+    ast_sequence_append(then_branch, ast_create_assignment(ast_create_identifier("x"), ast_create_integer(0)));
+    Statement *else_branch = ast_create_sequence();
+    ast_sequence_append(else_branch, ast_create_assignment(ast_create_identifier("x"), ast_create_integer(10)));
 
-    // Test 4: Nested binary expression ((10 + 20) * 5)
-    Expression *nested = ast_create_binary(
-        TOKEN_STAR,
-        ast_create_binary(
-            TOKEN_PLUS,
-            ast_create_integer(10),
-            ast_create_integer(20)
-        ),
-        ast_create_integer(5)
+    Statement *if_stmt = ast_create_if(
+        ast_create_binary(TOKEN_EQ, ast_create_identifier("x"), ast_create_integer(20)),
+        then_branch,
+        else_branch
     );
 
-    printf("\n=== Test 4: Nested Binary ===\n");
-    ast_print(nested);
-    ast_destroy(nested);
+    ast_sequence_append(program, if_stmt);
+    ast_print_statement(program);
+    ast_destroy_stmt(program);
 
     return 0;
 }

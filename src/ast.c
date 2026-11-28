@@ -24,7 +24,7 @@ static char *ast_strdup(const char *str) {
     return copy;
 }
 
-static void ast_print_expr_recursive(const Expression *expr, int depth) {
+static void ast_print_expr(const Expression *expr, int depth) {
     if (expr == NULL) {
         printf("%*sNULL\n", depth * AST_INDENT_SIZE, "");
         return;
@@ -41,7 +41,7 @@ static void ast_print_expr_recursive(const Expression *expr, int depth) {
             printf("Var(%s)\n", expr->identifier);
             break;
 
-        case EXPR_BINARY:
+        case EXPR_BINARY: {
             const char *op = "UNKNOWN";
 
             switch (expr->Binary.op) {
@@ -59,8 +59,56 @@ static void ast_print_expr_recursive(const Expression *expr, int depth) {
             }
 
             printf("Binary(%s)\n", op);
-            ast_print_recursive(expr->Binary.left, depth + 1);
-            ast_print_recursive(expr->Binary.right, depth + 1);
+            ast_print_expr(expr->Binary.left, depth + 1);
+            ast_print_expr(expr->Binary.right, depth + 1);
+            break;
+        }
+    }
+}
+
+static void ast_print_stmt(const Statement *stmt, int depth) {
+    if (stmt == NULL) {
+        printf("%*sNULL\n", depth * AST_INDENT_SIZE, "");
+        return;
+    }
+
+    printf("%*s", depth * AST_INDENT_SIZE, "");
+
+    switch (stmt->type) {
+        case STMT_ASSIGN:
+            printf("Assign\n");
+            ast_print_expr(stmt->Assign.target, depth + 1);
+            ast_print_expr(stmt->Assign.value, depth + 1);
+            break;
+
+        case STMT_IF:
+            printf("If\n");
+            printf("%*sCondition\n", (depth + 1) * AST_INDENT_SIZE, "");
+            ast_print_expr(stmt->If.condition, depth + 2);
+
+            printf("%*sThen\n", (depth + 1) * AST_INDENT_SIZE, "");
+            ast_print_stmt(stmt->If.then_branch, depth + 2);
+
+            if (stmt->If.else_branch != NULL) {
+                printf("%*sElse\n", (depth + 1) * AST_INDENT_SIZE, "");
+                ast_print_stmt(stmt->If.else_branch, depth + 2);
+            }
+            break;
+
+        case STMT_WHILE:
+            printf("While\n");
+            printf("%*sCondition\n", (depth + 1) * AST_INDENT_SIZE, "");
+            ast_print_expr(stmt->While.condition, depth + 2);
+
+            printf("%*sBody\n", (depth + 1) * AST_INDENT_SIZE, "");
+            ast_print_stmt(stmt->While.body, depth + 2);
+            break;
+
+        case STMT_SEQUENCE:
+            printf("Sequence\n");
+            for (size_t i = 0; i < stmt->Sequence.count; i++) {
+                ast_print_stmt(stmt->Sequence.statements[i], depth + 1);
+            }
             break;
     }
 }
@@ -126,16 +174,16 @@ void ast_destroy_expr(Expression *expr) {
             break;
         
         case EXPR_BINARY:
-            ast_destroy(expr->Binary.left);
-            ast_destroy(expr->Binary.right);
+            ast_destroy_expr(expr->Binary.left);
+            ast_destroy_expr(expr->Binary.right);
             break;
     }
 
     free(expr);
 }
 
-void ast_print_expr(const Expression *expr) {
-    ast_print_expr_recursive(expr, 0);
+void ast_print_expression(const Expression *expr) {
+    ast_print_expr(expr, 0);
 }
 
 
@@ -243,4 +291,8 @@ void ast_destroy_stmt(Statement *stmt) {
     }
 
     free(stmt);
+}
+
+void ast_print_statement(const Statement *stmt) {
+    ast_print_stmt(stmt, 0);
 }
