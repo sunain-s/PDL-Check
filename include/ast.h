@@ -35,9 +35,9 @@ Expression *ast_create_identifier(const char *name);
 
 Expression *ast_create_binary(TokenType operator, Expression *left, Expression *right);
 
-void ast_destroy(Expression *expr);
+void ast_destroy_expr(Expression *expr);
 
-void ast_print(const Expression *expr);
+void ast_print_expr(const Expression *expr);
 
 //-------------------------------------------------------------------------------------------------
 // Statements
@@ -88,5 +88,7 @@ Statement *ast_create_while(Expression *condition, Statement *body);
 Statement *ast_create_sequence(void);
 
 int ast_sequence_append(Statement *sequence, Statement *stmt);
+
+void ast_destroy_stmt(Statement *stmt);
 
 #endif

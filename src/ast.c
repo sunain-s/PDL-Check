@@ -24,7 +24,7 @@ static char *ast_strdup(const char *str) {
     return copy;
 }
 
-static void ast_print_recursive(const Expression *expr, int depth) {
+static void ast_print_expr_recursive(const Expression *expr, int depth) {
     if (expr == NULL) {
         printf("%*sNULL\n", depth * AST_INDENT_SIZE, "");
         return;
@@ -112,7 +112,7 @@ Expression *ast_create_binary(TokenType op, Expression *left, Expression *right)
     return expr;
 }
 
-void ast_destroy(Expression *expr) {
+void ast_destroy_expr(Expression *expr) {
     if (expr == NULL) {
         return;
     }
@@ -134,8 +134,8 @@ void ast_destroy(Expression *expr) {
     free(expr);
 }
 
-void ast_print(const Expression *expr) {
-    ast_print_recursive(expr, 0);
+void ast_print_expr(const Expression *expr) {
+    ast_print_expr_recursive(expr, 0);
 }
 
 
@@ -210,4 +210,37 @@ int ast_sequence_append(Statement *sequence, Statement *stmt) {
 
     sequence->Sequence.statements[sequence->Sequence.count++] = stmt;
     return 0;
+}
+
+void ast_destroy_stmt(Statement *stmt) {
+    if (stmt == NULL) {
+        return;
+    }
+
+    switch (stmt->type) {
+        case STMT_ASSIGN:
+            ast_destroy_expr(stmt->Assign.target);
+            ast_destroy_expr(stmt->Assign.value);
+            break;
+
+        case STMT_IF:
+            ast_destroy_expr(stmt->If.condition);
+            ast_destroy_stmt(stmt->If.then_branch);
+            ast_destroy_stmt(stmt->If.else_branch);
+            break;
+
+        case STMT_WHILE:
+            ast_destroy_expr(stmt->While.condition);
+            ast_destroy_stmt(stmt->While.body);
+            break;
+
+        case STMT_SEQUENCE:
+            for (size_t i = 0; i < stmt->Sequence.count; i++) {
+                ast_destroy_stmt(stmt->Sequence.statements[i]);
+            }
+            free(stmt->Sequence.statements);
+            break;
+    }
+
+    free(stmt);
 }
